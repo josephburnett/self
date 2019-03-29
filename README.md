@@ -1,2 +1,3 @@
 # self
-Notes
+
+Note taking application with minimum dependencies for maximum longevity.

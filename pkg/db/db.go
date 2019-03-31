@@ -21,7 +21,8 @@ type Database interface {
 	DeleteNote(id Id) error
 
 	ListTags() ([]Tag, error)
-	GetTaggedNotes(tag Tag) ([]*Note, error)
+	TagSearch(tags []Tag) ([]*Note, error)
+	TextSearch(s string) ([]*Note, error)
 
-	Repair() (bool, []error)
+	Reconcile() (bool, []error)
 }

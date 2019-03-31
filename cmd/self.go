@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
+
+	"github.com/josephburnett/self/pkg/file"
 )
 
 var (
@@ -11,4 +14,15 @@ var (
 
 func main() {
 	flag.Parse()
+	db, err := file.NewFileDb(*filedb)
+	if err != nil {
+		panic(err)
+	}
+	ids, err := db.ListNotes()
+	if err != nil {
+		panic(err)
+	}
+	for _, id := range ids {
+		fmt.Printf("%v\n", id)
+	}
 }

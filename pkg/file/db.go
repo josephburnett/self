@@ -1,41 +1,75 @@
 package file
 
-import "github.com/josephburnett/self/pkg/db"
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
+	"github.com/josephburnett/self/pkg/db"
+)
+
+const notesDbDir = "notes-db"
+const notesDir = "notes"
+const notesExt = ".json"
 
 type fileDb struct {
-	path string
+	notes string
 }
 
-func NewFileDb(path string) (Database, error) {
-	return &fileDb{
-		path: path,
+func NewFileDb(path string) (db.Database, error) {
+	_, file := filepath.Split(path)
+	if file != notesDbDir {
+		return nil, fmt.Errorf("Invalid filedb %q. Must be something %q.", path, notesDbDir)
 	}
+	fileInfo, err := os.Stat(filepath.Join(path, notesDir))
+	if err != nil || !fileInfo.IsDir() {
+		return nil, fmt.Errorf("Invalid filedb %q. Must contain %q directory.", path, notesDir)
+	}
+	return &fileDb{
+		notes: filepath.Join(path, notesDir),
+	}, nil
 }
 
-func (db *fileDb) ListNotes() ([]db.Id, error) {
-
+func (d *fileDb) ListNotes() ([]db.Id, error) {
+	files, err := ioutil.ReadDir(d.notes)
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]db.Id, 0)
+	for _, f := range files {
+		name := f.Name()
+		if filepath.Ext(name) == notesExt {
+			ids = append(ids, db.Id(name[:len(name)-len(notesExt)]))
+		}
+	}
+	return ids, nil
 }
 
-func (db *fileDb) GetNote(id db.Id) (*db.Note, error) {
-
+func (d *fileDb) GetNote(id db.Id) (*db.Note, error) {
+	return nil, nil
 }
 
-func (db *fileDb) PutNote(note *db.Note) error {
-
+func (d *fileDb) PutNote(note *db.Note) error {
+	return nil
 }
 
-func (db *fileDb) DeleteNote(id db.Id) error {
-
+func (d *fileDb) DeleteNote(id db.Id) error {
+	return nil
 }
 
-func (db *fileDb) ListTags() ([]db.Tag, error) {
-
+func (d *fileDb) ListTags() ([]db.Tag, error) {
+	return nil, nil
 }
 
-func (db *fileDb) GetTaggedNotes(tag db.Tag) ([]*Note, error) {
-
+func (d *fileDb) TagSearch(tags []db.Tag) ([]*db.Note, error) {
+	return nil, nil
 }
 
-func (db *fileDb) Repair() (bool, []error) {
+func (d *fileDb) TextSearch(s string) ([]*db.Note, error) {
+	return nil, nil
+}
 
+func (d *fileDb) Reconcile() (bool, []error) {
+	return false, nil
 }

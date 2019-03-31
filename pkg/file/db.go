@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/josephburnett/self/pkg/db"
 )
@@ -36,6 +37,9 @@ func (d *fileDb) ListNotes() ([]db.Id, error) {
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(files, func(i, j int) bool {
+		return files[i].ModTime().Before(files[j].ModTime())
+	})
 	ids := make([]db.Id, 0)
 	for _, f := range files {
 		name := f.Name()

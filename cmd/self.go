@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	for _, id := range ids {
+	for _, id := range ids[:20] {
 		fmt.Printf("%v\n", id)
 	}
 }

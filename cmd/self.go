@@ -23,6 +23,10 @@ func main() {
 		panic(err)
 	}
 	for _, id := range ids[:20] {
-		fmt.Printf("%v\n", id)
+		note, err := db.GetNote(id)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%v\n", note.Title)
 	}
 }

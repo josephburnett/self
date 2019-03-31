@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"time"
 
 	"github.com/josephburnett/self/pkg/db"
 )
@@ -38,7 +39,7 @@ func (d *fileDb) ListNotes() ([]db.Id, error) {
 		return nil, err
 	}
 	sort.Slice(files, func(i, j int) bool {
-		return files[i].ModTime().Before(files[j].ModTime())
+		return !files[i].ModTime().Before(files[j].ModTime())
 	})
 	ids := make([]db.Id, 0)
 	for _, f := range files {
@@ -51,7 +52,22 @@ func (d *fileDb) ListNotes() ([]db.Id, error) {
 }
 
 func (d *fileDb) GetNote(id db.Id) (*db.Note, error) {
-	return nil, nil
+	file, err := Load(filepath.Join(d.notes, string(id)+notesExt))
+	if err != nil {
+		return nil, err
+	}
+	tags := make([]db.Tag, len(file.Tags))
+	for i, t := range file.Tags {
+		tags[i] = db.Tag(t)
+	}
+	return &db.Note{
+		Id:      id,
+		Title:   file.Title,
+		Body:    file.Content,
+		Tags:    tags,
+		Created: time.Unix(file.Created, 0),
+		Updated: time.Unix(file.Updated, 0),
+	}, nil
 }
 
 func (d *fileDb) PutNote(note *db.Note) error {

@@ -5,12 +5,15 @@ import (
 	"fmt"
 
 	"github.com/josephburnett/self/pkg/command"
+	"github.com/josephburnett/self/pkg/db"
 	"github.com/josephburnett/self/pkg/file"
+	"github.com/josephburnett/self/pkg/sqlite"
 )
 
 var (
 	filename    = flag.String("filename", "", "Path to single file.")
 	filedb      = flag.String("filedb", "", "Path to file database.")
+	sqlitedb    = flag.String("sqlitedb", "", "Path to sqlite database.")
 	cmd         = flag.String("command", "", "Command [search, read, list].")
 	interactive = flag.Bool("interactive", false, "Interactive shell.")
 	output      = flag.String("output", "", "Output format [body, json].")
@@ -22,9 +25,22 @@ var (
 
 func main() {
 	flag.Parse()
-	d, err := file.NewFileDb(*filedb)
-	if err != nil {
-		panic(err)
+	var d db.Database
+	var err error
+	if *filedb != "" {
+		d, err = file.NewFileDb(*filedb)
+		if err != nil {
+			panic(err)
+		}
+	}
+	if *sqlitedb != "" {
+		d, err = sqlite.NewSqliteDb(*sqlitedb)
+		if err != nil {
+			panic(err)
+		}
+	}
+	if d == nil {
+		panic("no database given")
 	}
 	if *cmd != "" {
 		var err error

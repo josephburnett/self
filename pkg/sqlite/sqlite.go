@@ -73,7 +73,26 @@ where id = ?`)
 }
 
 func (d *sqliteDb) PutNote(note *db.Note) error {
-	return fmt.Errorf("unimplemented")
+	stmt, err := d.db.Prepare(`
+insert into notes(id, title, body, tags, created, updated) values(?, ?, ?, ?, ?, ?)
+`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	tags := ""
+	for _, t := range note.Tags {
+		tags += string(t)
+	}
+	_, err = stmt.Exec(
+		note.Id,
+		note.Title,
+		note.Body,
+		tags,
+		note.Created.Unix(),
+		note.Updated.Unix(),
+	)
+	return err
 }
 
 func (d *sqliteDb) DeleteNote(id db.Id) error {
@@ -94,4 +113,22 @@ func (d *sqliteDb) TextSearch(s string) ([]*db.Note, error) {
 
 func (d *sqliteDb) Reconcile() (bool, []error) {
 	return false, nil
+}
+
+func (d *sqliteDb) Init() error {
+	_, err := d.db.Exec(`
+create table meta (key text not null primary key, value text not null);
+create table notes (
+  id text not null primary key,
+  title text,
+  body text,
+  tags text,
+  created integer,
+  updated integer);
+`)
+	if err != nil {
+		return err
+	}
+	_, err = d.db.Exec("insert into meta(key, value) values('version', '1')")
+	return err
 }

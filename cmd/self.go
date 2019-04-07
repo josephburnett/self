@@ -14,13 +14,15 @@ var (
 	filename    = flag.String("filename", "", "Path to single file.")
 	filedb      = flag.String("filedb", "", "Path to file database.")
 	sqlitedb    = flag.String("sqlitedb", "", "Path to sqlite database.")
-	cmd         = flag.String("command", "", "Command [search, read, list].")
+	do          = flag.String("do", "", "Do [insert, search, read, list, init].")
 	interactive = flag.Bool("interactive", false, "Interactive shell.")
 	output      = flag.String("output", "", "Output format [body, json].")
 	limit       = flag.Int("limit", 20, "Limit list output.")
 	id          = flag.String("id", "", "Note Id.")
 	tags        = flag.String("tags", "", "Comma separated list of tags.")
 	sub         = flag.String("sub", "", "Sub-string to search for.")
+	title       = flag.String("title", "", "Title for new note.")
+	body        = flag.String("body", "", "Body for new note.")
 )
 
 func main() {
@@ -42,17 +44,21 @@ func main() {
 	if d == nil {
 		panic("no database given")
 	}
-	if *cmd != "" {
+	if *do != "" {
 		var err error
-		switch *cmd {
+		switch *do {
+		case "insert":
+			err = command.Insert(d, *title, *body)
 		case "search":
 			err = command.Search(d, *sub, *limit)
 		case "read":
 			err = command.Read(d, *id)
 		case "list":
 			err = command.List(d, *tags, *limit)
+		case "init":
+			err = d.Init()
 		default:
-			panic(fmt.Sprintf("Unknown command: %q.", *cmd))
+			panic(fmt.Sprintf("Unknown command: %q.", *do))
 		}
 		if err != nil {
 			panic(err)

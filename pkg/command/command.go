@@ -3,9 +3,29 @@ package command
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/josephburnett/self/pkg/db"
 )
+
+func Insert(d db.Database, title, body string) error {
+	if title == "" {
+		return fmt.Errorf("Title is required")
+	}
+	if body == "" {
+		return fmt.Errorf("Body is required")
+	}
+	now := time.Now()
+	n := &db.Note{
+		Id:      db.NewId(),
+		Title:   title,
+		Body:    body,
+		Tags:    []db.Tag{},
+		Created: now,
+		Updated: now,
+	}
+	return d.PutNote(n)
+}
 
 func Search(d db.Database, sub string, limit int) error {
 	ids, err := d.ListNotes()
@@ -75,6 +95,9 @@ func List(d db.Database, tags string, limit int) error {
 	ids, err := d.ListNotes()
 	if err != nil {
 		return err
+	}
+	if len(ids) < limit {
+		limit = len(ids)
 	}
 	more := false
 	if tags == "" {

@@ -71,25 +71,44 @@ func (d *fileDb) GetNote(id db.Id) (*db.Note, error) {
 }
 
 func (d *fileDb) PutNote(note *db.Note) error {
-	return nil
+	tags := make([]string, len(note.Tags))
+	for i, t := range note.Tags {
+		tags[i] = string(t)
+	}
+	file := &File{
+		Content: note.Body,
+		Created: note.Created.Unix(),
+		Files:   []string{},
+		Id:      string(note.Id),
+		Tags:    tags,
+		Title:   note.Title,
+		Type:    "notes",
+		Updated: note.Updated.Unix(),
+	}
+	filename := filepath.Join(d.notes, string(note.Id)+notesExt)
+	return Store(filename, file)
 }
 
 func (d *fileDb) DeleteNote(id db.Id) error {
-	return nil
+	return fmt.Errorf("unimplemented")
 }
 
 func (d *fileDb) ListTags() ([]db.Tag, error) {
-	return nil, nil
+	return nil, fmt.Errorf("unimplemented")
 }
 
 func (d *fileDb) TagSearch(tags []db.Tag) ([]*db.Note, error) {
-	return nil, nil
+	return nil, fmt.Errorf("unimplemented")
 }
 
 func (d *fileDb) TextSearch(s string) ([]*db.Note, error) {
-	return nil, nil
+	return nil, fmt.Errorf("unimplemented")
 }
 
 func (d *fileDb) Reconcile() (bool, []error) {
 	return false, nil
+}
+
+func (d *fileDb) Init() error {
+	return nil
 }

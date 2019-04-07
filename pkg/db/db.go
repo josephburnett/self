@@ -24,5 +24,6 @@ type Database interface {
 	TagSearch(tags []Tag) ([]*Note, error)
 	TextSearch(s string) ([]*Note, error)
 
+	Init() error
 	Reconcile() (bool, []error)
 }

@@ -63,7 +63,7 @@ func Search(d db.Database, sub string, limit int) error {
 		}
 	}
 	for _, note := range notes {
-		fmt.Printf("=== %v ===\n\n%v %v\n", note.Title, note.Id, note.Tags)
+		fmt.Printf("=== %v ===\n%v %v\n\n", note.Title, note.Id, note.Tags)
 		lines := strings.Split(note.Body, "\n")
 		for _, line := range lines {
 			lowerLine := strings.ToLower(line)
